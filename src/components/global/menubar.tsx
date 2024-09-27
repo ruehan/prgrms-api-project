@@ -15,26 +15,19 @@ const MenuBar: React.FC = () => {
     const fetchSuggestions = async () => {
       if (debouncedSearchTerm.length > 1) {
         try {
-          const response = await axios.get(
-            'https://ruehan-kopis.org/auto-fill',
-            {
-              params: {
-                stdate: format(new Date(), 'yyyyMMdd'),
-                eddate: format(
-                  new Date(
-                    new Date().setFullYear(new Date().getFullYear() + 1)
-                  ),
-                  'yyyyMMdd'
-                ),
-                shprfnm: debouncedSearchTerm,
-                cpage: 1,
-                rows: 5,
-              },
-            }
-          )
-          setSuggestions(
-            response.data.map((item: { prfnm: string }) => item.prfnm)
-          )
+          const response = await axios.get('https://ruehan-kopis.org/auto-fill', {
+            params: {
+              stdate: format(new Date(), 'yyyyMMdd'),
+              eddate: format(
+                new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                'yyyyMMdd'
+              ),
+              shprfnm: debouncedSearchTerm,
+              cpage: 1,
+              rows: 5,
+            },
+          })
+          setSuggestions(response.data.map((item: { prfnm: string }) => item.prfnm))
           setShowSuggestions(true)
         } catch (error) {
           console.error('Error fetching suggestions:', error)
@@ -69,11 +62,7 @@ const MenuBar: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <Link to="/" className="flex items-center">
-              <object
-                type="image/svg+xml"
-                data="/logo.svg"
-                className="h-[50px] w-[200px]"
-              >
+              <object type="image/svg+xml" data="/logo.svg" className="h-[50px] w-[200px]">
                 culturetree
               </object>
               {/* <img src="/public/logo.svg" alt="" /> */}
@@ -85,11 +74,9 @@ const MenuBar: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => setShowSuggestions(true)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 200)
-                  }
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="공연/정보를 검색해 보세요"
-                  className="w-full rounded-full border border-gray-300 p-2 pl-10 pr-4 focus:border-purple-500 focus:outline-none"
+                  className="w-[300px] rounded-full border border-gray-300 p-2 pl-10 pr-4 focus:border-purple-500 focus:outline-none"
                 />
                 <button
                   type="submit"
@@ -112,7 +99,7 @@ const MenuBar: React.FC = () => {
                 </button>
               </form>
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-full rounded-b-lg bg-white shadow-md">
+                <ul className="absolute z-10 mt-1 w-[300px] rounded-b-lg bg-white shadow-md">
                   {suggestions.map((suggestion, index) => (
                     <li
                       key={index}
@@ -133,26 +120,17 @@ const MenuBar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/recommend"
-                    className="text-gray-600 hover:text-purple-600"
-                  >
+                  <Link to="/recommend" className="text-gray-600 hover:text-purple-600">
                     추천
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/ranking"
-                    className="text-gray-600 hover:text-purple-600"
-                  >
+                  <Link to="/ranking" className="text-gray-600 hover:text-purple-600">
                     랭킹
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/nearby"
-                    className="text-gray-600 hover:text-purple-600"
-                  >
+                  <Link to="/nearby" className="text-gray-600 hover:text-purple-600">
                     주변 공연장
                   </Link>
                 </li>

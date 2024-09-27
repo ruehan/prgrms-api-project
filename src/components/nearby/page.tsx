@@ -206,7 +206,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
 
   return (
     // mt-[80px] w-full px-4 sm:px-6 md:mt-[120px] lg:mt-[162px] lg:px-8
-    <div className="mx-auto mt-[80px] max-w-[1440px] p-4 md:mt-[120px] lg:mt-[162px] lg:px-8">
+    <div className="mx-auto mt-[80px] max-w-[1440px] lg:px-8">
       <h1 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
         주변 공연장 안내
       </h1>

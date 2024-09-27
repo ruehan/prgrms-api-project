@@ -144,7 +144,7 @@ const SearchPage: React.FC = () => {
     )
 
   return (
-    <div className="mt-[80px] w-full px-4 sm:px-6 md:mt-[120px] lg:mt-[162px] lg:px-8">
+    <div className="mt-[80px] w-full px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1440px]">
         <h1 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
           '{query}' 검색 결과
@@ -180,7 +180,6 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 공연상태 필터 */}
             <div className="mb-4">
               <h3 className="mb-2 font-semibold">공연상태</h3>
               <div className="flex flex-wrap gap-2">
@@ -202,7 +201,6 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 날짜 필터 */}
             <div className="mb-4">
               <h3 className="mb-2 font-semibold">날짜</h3>
               <DatePicker
@@ -216,7 +214,6 @@ const SearchPage: React.FC = () => {
               />
             </div>
 
-            {/* 지역 필터 */}
             <div className="mb-4">
               <h3 className="mb-2 font-semibold">지역</h3>
               <div className="flex flex-wrap gap-2">
@@ -243,7 +240,6 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 검색 버튼 */}
             <button
               onClick={handleSearch}
               className="mt-4 w-full rounded-lg bg-purple-500 py-2 text-white"
@@ -252,15 +248,14 @@ const SearchPage: React.FC = () => {
             </button>
           </div>
 
-          {/* 검색 결과 */}
           <div className="w-full">
-            <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {filteredPerformances.map((performance) => (
                 <div
                   key={performance.mt20id}
                   className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
                 >
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-[300px] overflow-hidden">
                     <img
                       src={performance.poster}
                       alt={performance.prfnm}

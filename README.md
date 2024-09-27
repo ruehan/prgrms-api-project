@@ -1,5 +1,7 @@
 # 프로젝트 개발 진행 상황
 
+**[배포 URL](https://prgrms-api-project.vercel.app/)**
+
 ## 프론트엔드
 
 ### 1. 메인 페이지

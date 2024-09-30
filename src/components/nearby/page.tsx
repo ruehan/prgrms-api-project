@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import axios from 'axios'
-import { FaTheaterMasks } from 'react-icons/fa'
 import { format } from 'date-fns'
+import { Alert, AlertTitle, AlertDescription } from './alert'
+import { Button } from './button'
+import { FaTheaterMasks } from 'react-icons/fa'
 
 interface Facility {
   mt10id: string
@@ -62,14 +64,29 @@ const facilityIcon = L.icon({
 })
 
 const NearbyPerformanceFacilities: React.FC = () => {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null
-  )
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [facilities, setFacilities] = useState<Facility[]>([])
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null)
   const [relatedShows, setRelatedShows] = useState<Performance[]>([])
+  const [permissionStatus, setPermissionStatus] = useState<PermissionState | null>(null)
 
   useEffect(() => {
+    checkPermission()
+  }, [])
+
+  const checkPermission = async () => {
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' })
+        setPermissionStatus(result.state)
+        result.onchange = () => setPermissionStatus(result.state)
+      } catch (error) {
+        console.error('Error checking geolocation permission:', error)
+      }
+    }
+  }
+
+  const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -80,12 +97,13 @@ const NearbyPerformanceFacilities: React.FC = () => {
         },
         (error) => {
           console.error('Error getting user location:', error)
+          checkPermission()
         }
       )
     } else {
       console.error('Geolocation is not supported by this browser.')
     }
-  }, [])
+  }
 
   useEffect(() => {
     if (userLocation) {
@@ -95,16 +113,13 @@ const NearbyPerformanceFacilities: React.FC = () => {
 
   const fetchLocationInfo = async (lat: number, lon: number) => {
     try {
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse`,
-        {
-          params: {
-            format: 'json',
-            lat: lat,
-            lon: lon,
-          },
-        }
-      )
+      const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
+        params: {
+          format: 'json',
+          lat: lat,
+          lon: lon,
+        },
+      })
       const address = response.data.address
       console.log(address)
       setLocationInfo({
@@ -119,29 +134,19 @@ const NearbyPerformanceFacilities: React.FC = () => {
 
   const fetchFacilities = async () => {
     try {
-      const response = await axios.get(
-        'https://ruehan-kopis.org/performance-facilities',
-        {
-          params: {
-            signgucode: '',
-            signgucodesub: '',
-            cpage: 1,
-            rows: 2000,
-          },
-        }
-      )
+      const response = await axios.get('https://ruehan-kopis.org/performance-facilities', {
+        params: {
+          signgucode: '',
+          signgucodesub: '',
+          cpage: 1,
+          rows: 2000,
+        },
+      })
       if (userLocation) {
-        const facilitiesWithDistance = response.data.map(
-          (facility: Facility) => ({
-            ...facility,
-            distance: calculateDistance(
-              userLocation[0],
-              userLocation[1],
-              facility.la,
-              facility.lo
-            ),
-          })
-        )
+        const facilitiesWithDistance = response.data.map((facility: Facility) => ({
+          ...facility,
+          distance: calculateDistance(userLocation[0], userLocation[1], facility.la, facility.lo),
+        }))
         const sortedFacilities = facilitiesWithDistance.sort(
           (a: Facility, b: Facility) => a.distance! - b.distance!
         )
@@ -155,18 +160,15 @@ const NearbyPerformanceFacilities: React.FC = () => {
   const fetchRelatedShow = async (facilityName: string) => {
     try {
       const today = format(new Date(), 'yyyyMMdd')
-      const response = await axios.get<Performance[]>(
-        'https://ruehan-kopis.org/performances',
-        {
-          params: {
-            stdate: today,
-            eddate: today,
-            shprfnmfct: facilityName,
-            cpage: 1,
-            rows: 2,
-          },
-        }
-      )
+      const response = await axios.get<Performance[]>('https://ruehan-kopis.org/performances', {
+        params: {
+          stdate: today,
+          eddate: today,
+          shprfnmfct: facilityName,
+          cpage: 1,
+          rows: 2,
+        },
+      })
       if (response.data.length > 0) {
         setRelatedShows((prev) => [...prev, response.data[0]]) // 배열에 추가
       }
@@ -181,12 +183,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
     })
   }, [facilities])
 
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371
     const dLat = ((lat2 - lat1) * Math.PI) / 180
     const dLon = ((lon2 - lon1) * Math.PI) / 180
@@ -199,100 +196,128 @@ const NearbyPerformanceFacilities: React.FC = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return R * c
   }
-
-  if (!userLocation || !locationInfo) {
-    return <div>Loading user location...</div>
-  }
-
-  return (
-    // mt-[80px] w-full px-4 sm:px-6 md:mt-[120px] lg:mt-[162px] lg:px-8
-    <div className="mx-auto mt-[80px] max-w-[1440px] lg:px-8">
-      <h1 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
-        주변 공연장 안내
-      </h1>
-      <div className="mb-4 h-[400px]">
-        <MapContainer
-          center={userLocation}
-          zoom={13}
-          style={{ height: '100%', width: '100%', zIndex: '0' }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={userLocation} icon={userIcon}>
-            <Popup>현재 위치</Popup>
-          </Marker>
-          {facilities.map((facility) => (
-            <Marker
-              key={facility.mt10id}
-              position={[facility.la, facility.lo]}
-              icon={facilityIcon}
-            >
-              <Popup>{facility.fcltynm}</Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
-      <div>
-        <h2 className="mb-2 text-xl font-semibold">
-          주변 공연장 목록 (가까운 순 10개)
-        </h2>
-        <div className="grid w-full grid-cols-2">
-          {facilities.map((facility) => (
-            <div
-              key={facility.mt10id}
-              className="mb-2 flex items-center justify-start"
-            >
-              <div className="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-500">
-                <FaTheaterMasks className="text-xl text-white" />
+  const renderContent = () => {
+    if (permissionStatus === 'granted') {
+      if (userLocation && locationInfo) {
+        return (
+          <div className="mx-auto mt-[80px] max-w-[1440px] lg:px-8">
+            <h1 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
+              주변 공연장 안내
+            </h1>
+            <div className="mb-4 h-[400px]">
+              <MapContainer
+                center={userLocation}
+                zoom={13}
+                style={{ height: '100%', width: '100%', zIndex: '0' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <Marker position={userLocation} icon={userIcon}>
+                  <Popup>현재 위치</Popup>
+                </Marker>
+                {facilities.map((facility) => (
+                  <Marker
+                    key={facility.mt10id}
+                    position={[facility.la, facility.lo]}
+                    icon={facilityIcon}
+                  >
+                    <Popup>{facility.fcltynm}</Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+            <div>
+              <h2 className="mb-2 text-xl font-semibold">주변 공연장 목록 (가까운 순 10개)</h2>
+              <div className="grid w-full grid-cols-2">
+                {facilities.map((facility) => (
+                  <div key={facility.mt10id} className="mb-2 flex items-center justify-start">
+                    <div className="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-500">
+                      <FaTheaterMasks className="text-xl text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{facility.fcltynm}</h3>
+                      <p className="text-sm text-gray-600">{facility.adres}</p>
+                      <p className="text-xs text-gray-500">
+                        거리: {facility.distance?.toFixed(2)} km
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <h3 className="font-semibold">{facility.fcltynm}</h3>
-                <p className="text-sm text-gray-600">{facility.adres}</p>
-                <p className="text-xs text-gray-500">
-                  거리: {facility.distance?.toFixed(2)} km
-                </p>
+              <div className="w-full">
+                <h1 className="mb-4 mt-[80px] text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
+                  관련 공연
+                </h1>
+                <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {relatedShows.map((performance) => (
+                    <div
+                      key={performance.mt20id}
+                      className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
+                    >
+                      <div className="h-[300px] overflow-hidden">
+                        <img
+                          src={performance.poster}
+                          alt={performance.prfnm}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-grow flex-col p-4">
+                        <h2 className="mb-2 line-clamp-2 text-sm font-bold sm:text-base">
+                          {performance.prfnm}
+                        </h2>
+                        <p className="mb-1 line-clamp-1 text-sm">{performance.fcltynm}</p>
+                        <p className="mt-auto text-xs">{`${format(new Date(performance.prfpdfrom), 'yyyy.MM.dd')} - ${format(new Date(performance.prfpdto), 'yyyy.MM.dd')}`}</p>
+                        <p className="mt-1 text-xs">{performance.prfstate || '상태 미정'}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-        <div className="w-full">
-          <h1 className="mb-4 mt-[80px] text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
-            관련 공연
-          </h1>
-          <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {relatedShows.map((performance) => (
-              <div
-                key={performance.mt20id}
-                className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
-              >
-                <div className="h-[300px] overflow-hidden">
-                  <img
-                    src={performance.poster}
-                    alt={performance.prfnm}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex flex-grow flex-col p-4">
-                  <h2 className="mb-2 line-clamp-2 text-sm font-bold sm:text-base">
-                    {performance.prfnm}
-                  </h2>
-                  <p className="mb-1 line-clamp-1 text-sm">
-                    {performance.fcltynm}
-                  </p>
-                  <p className="mt-auto text-xs">{`${format(new Date(performance.prfpdfrom), 'yyyy.MM.dd')} - ${format(new Date(performance.prfpdto), 'yyyy.MM.dd')}`}</p>
-                  <p className="mt-1 text-xs">
-                    {performance.prfstate || '상태 미정'}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
+        )
+      } else {
+        return (
+          <Button
+            onClick={getLocation}
+            className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
+          >
+            위치 정보 가져오기
+          </Button>
+        )
+      }
+    } else if (permissionStatus === 'prompt') {
+      return (
+        <div>
+          <Alert>
+            <AlertTitle>위치 정보가 필요합니다</AlertTitle>
+            <AlertDescription>
+              주변 공연장을 찾으려면 위치 정보가 필요합니다. 아래 버튼을 클릭하여 위치 정보 제공을
+              허용해 주세요.
+            </AlertDescription>
+          </Alert>
+          <Button onClick={getLocation} className="mt-4">
+            위치 정보 제공 허용
+          </Button>
         </div>
-      </div>
-    </div>
-  )
+      )
+    } else if (permissionStatus === 'denied') {
+      return (
+        <Alert variant="destructive">
+          <AlertTitle>위치 정보 접근이 차단되었습니다</AlertTitle>
+          <AlertDescription>
+            브라우저 설정에서 이 웹사이트의 위치 정보 접근 권한을 허용해 주세요.
+          </AlertDescription>
+        </Alert>
+      )
+    } else {
+      return <p>위치 정보 권한을 확인 중입니다...</p>
+    }
+  }
+
+  return renderContent()
 }
 
 export default NearbyPerformanceFacilities

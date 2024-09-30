@@ -9,6 +9,7 @@ const MenuBar: React.FC = () => {
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -59,12 +60,15 @@ const MenuBar: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <Link to="/" className="flex items-center">
-              <object type="image/svg+xml" data="/logo.svg" className="h-[50px] w-[200px]">
+              <object
+                type="image/svg+xml"
+                data="/logo.svg"
+                className="h-[30px] w-[120px] md:h-[50px] md:w-[200px]"
+              >
                 culturetree
               </object>
-              {/* <img src="/public/logo.svg" alt="" /> */}
             </Link>
-            <div className="mx-10 flex-grow">
+            <div className="mx-10 hidden flex-grow md:block">
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
@@ -73,7 +77,7 @@ const MenuBar: React.FC = () => {
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder="공연/정보를 검색해 보세요"
-                  className="w-[300px] rounded-full border border-gray-300 p-2 pl-10 pr-4 focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-full border border-gray-300 p-2 pl-10 pr-4 focus:border-purple-500 focus:outline-none md:w-[300px]"
                 />
                 <button
                   type="submit"
@@ -96,7 +100,7 @@ const MenuBar: React.FC = () => {
                 </button>
               </form>
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-[300px] rounded-b-lg bg-white shadow-md">
+                <ul className="absolute z-10 mt-1 w-full rounded-b-lg bg-white shadow-md md:w-[300px]">
                   {suggestions.map((suggestion, index) => (
                     <li
                       key={index}
@@ -109,25 +113,102 @@ const MenuBar: React.FC = () => {
                 </ul>
               )}
             </div>
+            <nav className="hidden w-fit md:block">
+              <ul className="flex justify-between space-x-2 lg:space-x-6">
+                <li className="text-center">
+                  <Link
+                    to="/"
+                    className="whitespace-nowrap text-base text-gray-600 hover:text-purple-600"
+                  >
+                    홈
+                  </Link>
+                </li>
+                <li className="text-center">
+                  <Link
+                    to="/recommend"
+                    className="whitespace-nowrap text-base text-gray-600 hover:text-purple-600"
+                  >
+                    추천
+                  </Link>
+                </li>
+                <li className="text-center">
+                  <Link
+                    to="/ranking"
+                    className="whitespace-nowrap text-base text-gray-600 hover:text-purple-600"
+                  >
+                    랭킹
+                  </Link>
+                </li>
+                <li className="text-center">
+                  <Link
+                    to="/nearby"
+                    className="whitespace-nowrap text-base text-gray-600 hover:text-purple-600"
+                  >
+                    주변<span className="hidden sm:inline"> 공연장</span>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-white pt-20">
+          <div className="container mx-auto px-4">
+            <form onSubmit={handleSearch} className="mb-4">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="공연/정보를 검색해 보세요"
+                className="w-full rounded-full border border-gray-300 p-2 pl-10 pr-4 focus:border-purple-500 focus:outline-none"
+              />
+            </form>
             <nav>
-              <ul className="flex space-x-6">
+              <ul className="space-y-4">
                 <li>
-                  <Link to="/" className="text-gray-600 hover:text-purple-600">
+                  <Link
+                    to="/"
+                    className="text-gray-600 hover:text-purple-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     홈
                   </Link>
                 </li>
                 <li>
-                  <Link to="/recommend" className="text-gray-600 hover:text-purple-600">
+                  <Link
+                    to="/recommend"
+                    className="text-gray-600 hover:text-purple-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     추천
                   </Link>
                 </li>
                 <li>
-                  <Link to="/ranking" className="text-gray-600 hover:text-purple-600">
+                  <Link
+                    to="/ranking"
+                    className="text-gray-600 hover:text-purple-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     랭킹
                   </Link>
                 </li>
                 <li>
-                  <Link to="/nearby" className="text-gray-600 hover:text-purple-600">
+                  <Link
+                    to="/nearby"
+                    className="text-gray-600 hover:text-purple-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     주변 공연장
                   </Link>
                 </li>
@@ -135,8 +216,7 @@ const MenuBar: React.FC = () => {
             </nav>
           </div>
         </div>
-      </header>
-      {/* 헤더의 높이만큼 여백을 추가하여 컨텐츠가 헤더 아래에 오도록 합니다 */}
+      )}
       <div className="pt-20"></div>
     </div>
   )

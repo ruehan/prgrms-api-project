@@ -69,9 +69,16 @@ const NearbyPerformanceFacilities: React.FC = () => {
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null)
   const [relatedShows, setRelatedShows] = useState<Performance[]>([])
   const [permissionStatus, setPermissionStatus] = useState<PermissionState | null>(null)
+  const [consentGiven, setConsentGiven] = useState<boolean>(false)
 
   useEffect(() => {
-    checkPermission()
+    const storedConsent = localStorage.getItem('locationConsentGiven')
+    if (storedConsent === 'true') {
+      setConsentGiven(true)
+      getLocation()
+    } else {
+      checkPermission()
+    }
   }, [])
 
   const checkPermission = async () => {
@@ -94,6 +101,8 @@ const NearbyPerformanceFacilities: React.FC = () => {
           const lon = position.coords.longitude
           setUserLocation([lat, lon])
           fetchLocationInfo(lat, lon)
+          setConsentGiven(true)
+          localStorage.setItem('locationConsentGiven', 'true')
         },
         (error) => {
           console.error('Error getting user location:', error)
@@ -196,8 +205,9 @@ const NearbyPerformanceFacilities: React.FC = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return R * c
   }
+
   const renderContent = () => {
-    if (permissionStatus === 'granted') {
+    if (consentGiven || permissionStatus === 'granted') {
       if (userLocation && locationInfo) {
         return (
           <div className="mx-auto mt-[80px] max-w-[1440px] lg:px-8">

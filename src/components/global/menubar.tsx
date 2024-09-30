@@ -18,10 +18,7 @@ const MenuBar: React.FC = () => {
           const response = await axios.get('https://ruehan-kopis.org/auto-fill', {
             params: {
               stdate: format(new Date(), 'yyyyMMdd'),
-              eddate: format(
-                new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-                'yyyyMMdd'
-              ),
+              eddate: format(new Date(), 'yyyyMMdd'),
               shprfnm: debouncedSearchTerm,
               cpage: 1,
               rows: 5,

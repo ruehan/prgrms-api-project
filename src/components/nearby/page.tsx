@@ -159,7 +159,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
         const sortedFacilities = facilitiesWithDistance.sort(
           (a: Facility, b: Facility) => a.distance! - b.distance!
         )
-        setFacilities(sortedFacilities.slice(0, 10))
+        setFacilities(sortedFacilities.slice(0, 12))
       }
     } catch (error) {
       console.error('Error fetching facilities:', error)
@@ -179,7 +179,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
         },
       })
       if (response.data.length > 0) {
-        setRelatedShows((prev) => [...prev, response.data[0]]) // 배열에 추가
+        setRelatedShows((prev) => [...prev, response.data[0]])
       }
     } catch (error) {
       console.error('Error fetching related show:', error)
@@ -206,6 +206,68 @@ const NearbyPerformanceFacilities: React.FC = () => {
     return R * c
   }
 
+  const renderRelatedShows = () => {
+    if (relatedShows.length === 0) {
+      return (
+        <div className="col-span-full">
+          <div className="rounded-lg bg-gray-100 p-6 text-center">
+            <h3 className="mb-4 text-xl font-semibold">현재 관련 공연이 없습니다</h3>
+            <p className="mb-4">
+              하지만 걱정하지 마세요! 다음과 같은 방법으로 공연을 즐기실 수 있습니다:
+            </p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="rounded-md bg-white p-4 shadow">
+                <h4 className="mb-2 font-bold">다른 날짜 확인</h4>
+                <p>다른 날짜에 예정된 공연이 있을 수 있습니다.</p>
+                <Button
+                  className="mt-2"
+                  onClick={() => {
+                    /* 날짜 선택 기능 구현 */
+                  }}
+                >
+                  날짜 변경
+                </Button>
+              </div>
+              <div className="rounded-md bg-white p-4 shadow">
+                <h4 className="mb-2 font-bold">다른 지역 탐색</h4>
+                <p>인근 지역에서 진행되는 공연을 확인해보세요.</p>
+                <Button
+                  className="mt-2"
+                  onClick={() => {
+                    /* 지역 선택 기능 구현 */
+                  }}
+                >
+                  지역 변경
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return relatedShows.map((performance) => (
+      <div
+        key={performance.mt20id}
+        className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
+      >
+        <div className="h-[300px] overflow-hidden">
+          <img
+            src={performance.poster}
+            alt={performance.prfnm}
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="flex flex-grow flex-col p-4">
+          <h2 className="mb-2 line-clamp-2 text-sm font-bold sm:text-base">{performance.prfnm}</h2>
+          <p className="mb-1 line-clamp-1 text-sm">{performance.fcltynm}</p>
+          <p className="mt-auto text-xs">{`${format(new Date(performance.prfpdfrom), 'yyyy.MM.dd')} - ${format(new Date(performance.prfpdto), 'yyyy.MM.dd')}`}</p>
+          <p className="mt-1 text-xs">{performance.prfstate || '상태 미정'}</p>
+        </div>
+      </div>
+    ))
+  }
+
   const renderContent = () => {
     if (consentGiven || permissionStatus === 'granted') {
       if (userLocation && locationInfo) {
@@ -214,7 +276,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
             <h1 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
               주변 공연장 안내
             </h1>
-            <div className="mb-4 h-[400px]">
+            <div className="mb-4 mt-[60px] h-[400px]">
               <MapContainer
                 center={userLocation}
                 zoom={13}
@@ -239,16 +301,18 @@ const NearbyPerformanceFacilities: React.FC = () => {
               </MapContainer>
             </div>
             <div>
-              <h2 className="mb-2 text-xl font-semibold">주변 공연장 목록 (가까운 순 10개)</h2>
-              <div className="grid w-full grid-cols-2">
+              <div className="mt-[30px] grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                 {facilities.map((facility) => (
-                  <div key={facility.mt10id} className="mb-2 flex items-center justify-start">
-                    <div className="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-500">
+                  <div
+                    key={facility.mt10id}
+                    className="flex items-center rounded-lg bg-white p-3 shadow"
+                  >
+                    <div className="mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-500">
                       <FaTheaterMasks className="text-xl text-white" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{facility.fcltynm}</h3>
-                      <p className="text-sm text-gray-600">{facility.adres}</p>
+                    <div className="flex-grow">
+                      <h3 className="text-sm font-semibold">{facility.fcltynm}</h3>
+                      <p className="truncate text-sm text-gray-600">{facility.adres}</p>
                       <p className="text-xs text-gray-500">
                         거리: {facility.distance?.toFixed(2)} km
                       </p>
@@ -257,32 +321,11 @@ const NearbyPerformanceFacilities: React.FC = () => {
                 ))}
               </div>
               <div className="w-full">
-                <h1 className="mb-4 mt-[80px] text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
+                <h1 className="mb-4 mt-[80px] w-full text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
                   관련 공연
                 </h1>
-                <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {relatedShows.map((performance) => (
-                    <div
-                      key={performance.mt20id}
-                      className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
-                    >
-                      <div className="h-[300px] overflow-hidden">
-                        <img
-                          src={performance.poster}
-                          alt={performance.prfnm}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-grow flex-col p-4">
-                        <h2 className="mb-2 line-clamp-2 text-sm font-bold sm:text-base">
-                          {performance.prfnm}
-                        </h2>
-                        <p className="mb-1 line-clamp-1 text-sm">{performance.fcltynm}</p>
-                        <p className="mt-auto text-xs">{`${format(new Date(performance.prfpdfrom), 'yyyy.MM.dd')} - ${format(new Date(performance.prfpdto), 'yyyy.MM.dd')}`}</p>
-                        <p className="mt-1 text-xs">{performance.prfstate || '상태 미정'}</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="mt-[60px] grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {renderRelatedShows()}
                 </div>
               </div>
             </div>

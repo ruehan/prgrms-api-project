@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { Performance } from './page'
 
 const API_BASE_URL = 'https://ruehan-kopis.org'
 

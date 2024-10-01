@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { getPopularByGenre, saveUserGenres } from './api'
 import SkeletonUI from './modalSkeleton'
 import { useAuth } from './AuthContext'
+import { Performance } from './page'
 
 interface GenreSelectionModalProps {
   onSelect: (selectedGenres: string[]) => void
+  onClose: () => void
 }
 
 const GenreSelectionModal: React.FC<GenreSelectionModalProps> = ({ onSelect, onClose }) => {

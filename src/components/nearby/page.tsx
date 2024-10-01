@@ -22,7 +22,7 @@ interface LocationInfo {
   country: string
 }
 
-interface Performance {
+export interface Performance {
   mt20id: string
   prfnm: string
   prfpdfrom: string

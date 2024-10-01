@@ -10,6 +10,7 @@ import 'leaflet/dist/leaflet.css'
 import NearbyPerformanceFacilities from './components/nearby/page'
 import RecommendedShows from './components/recommend/page'
 import { AuthProvider } from './components/recommend/AuthContext'
+import PerformanceDetailPage from './components/info/page'
 
 const App: React.FC = () => {
   const queryClient = new QueryClient()
@@ -25,6 +26,7 @@ const App: React.FC = () => {
               <Route path="/search" element={<SearchPage />}></Route>
               <Route path="/nearby" element={<NearbyPerformanceFacilities />}></Route>
               <Route path="/recommend" element={<RecommendedShows />}></Route>
+              <Route path="/performance/:mt20id" element={<PerformanceDetailPage />}></Route>
             </Routes>
           </Router>
         </Provider>

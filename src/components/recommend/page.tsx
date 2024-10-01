@@ -55,6 +55,11 @@ const RecommendedShows: React.FC = () => {
 
   const handleGenreSelect = async () => {
     if (token) {
+      const recommended = await getRecommendByGenre(token)
+
+      //@ts-ignore
+      const formattedData = transformPerformanceData({ root: recommended })
+      setRecommendedShows(formattedData)
       setShowModal(false)
     }
   }

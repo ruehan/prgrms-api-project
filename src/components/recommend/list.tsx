@@ -1,5 +1,6 @@
 import React from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface Performance {
   mt20id: string
@@ -59,7 +60,11 @@ const PerformanceList: React.FC<PerformanceListProps> = ({ performances }) => {
             >
               {Array.isArray(shows) && shows.length > 0 ? (
                 shows.map((show) => (
-                  <div key={show.mt20id} className="w-40 flex-none sm:w-48 md:w-56 lg:w-64">
+                  <Link
+                    to={`/performance/${show.mt20id}`}
+                    key={show.mt20id}
+                    className="w-40 flex-none sm:w-48 md:w-56 lg:w-64"
+                  >
                     <img
                       src={show.poster}
                       alt={show.prfnm}
@@ -70,7 +75,7 @@ const PerformanceList: React.FC<PerformanceListProps> = ({ performances }) => {
                     <p className="text-xs text-gray-600 sm:text-sm">
                       {show.prfpdfrom} - {show.prfpdto}
                     </p>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p className="w-full text-center">No shows available for this genre.</p>

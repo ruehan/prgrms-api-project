@@ -58,20 +58,19 @@ const GenreRecommendations: React.FC = () => {
     fetchPerformances()
   }, [])
 
-  const NoPerformances: React.FC = () => (
-    <div className="w-full py-12 text-center">
-      <p className="text-xl text-gray-600">현재 표시할 공연 정보가 없습니다.</p>
-    </div>
-  )
-
-  const LoadingState: React.FC = () => (
-    <div className="w-full py-12 text-center">
-      <p className="text-xl text-gray-600">공연 정보를 불러오는 중입니다...</p>
+  const PerformanceSkeleton: React.FC = () => (
+    <div className="w-full max-w-[300px] overflow-hidden rounded-lg bg-white shadow-md">
+      <div className="h-64 w-full bg-gray-300"></div>
+      <div className="p-4">
+        <div className="mb-2 h-6 w-3/4 rounded bg-gray-300"></div>
+        <div className="mb-1 h-4 w-1/2 rounded bg-gray-300"></div>
+        <div className="h-4 w-2/3 rounded bg-gray-300"></div>
+      </div>
     </div>
   )
 
   return (
-    <section className="my-12 flex max-w-[1440px] flex-col items-center">
+    <section className="my-12 w-full max-w-[1440px] px-4">
       <h2 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
         장르별 추천 공연
       </h2>
@@ -91,14 +90,18 @@ const GenreRecommendations: React.FC = () => {
         ))}
       </div>
       {isLoading ? (
-        <LoadingState />
+        <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {[...Array(8)].map((_, index) => (
+            <PerformanceSkeleton key={index} />
+          ))}
+        </div>
       ) : performances[activeGenre]?.length ? (
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {performances[activeGenre].map((performance) => (
             <Link
               to={`/performance/${performance.mt20id}`}
               key={performance.mt20id}
-              className="overflow-hidden rounded-lg bg-white shadow-md transition-transform hover:scale-105"
+              className="w-full max-w-[300px] overflow-hidden rounded-lg bg-white shadow-md transition-transform hover:scale-105"
             >
               <img
                 src={performance.poster}
@@ -116,7 +119,9 @@ const GenreRecommendations: React.FC = () => {
           ))}
         </div>
       ) : (
-        <NoPerformances />
+        <div className="w-full py-12 text-center">
+          <p className="text-xl text-gray-600">현재 표시할 공연 정보가 없습니다.</p>
+        </div>
       )}
     </section>
   )

@@ -13,6 +13,7 @@ interface Performance {
 const MainBanner: React.FC = () => {
   const [performances, setPerformances] = useState<Performance[]>([])
   const [currentPerformance, setCurrentPerformance] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPerformances = async () => {
@@ -22,8 +23,10 @@ const MainBanner: React.FC = () => {
           `https://ruehan-kopis.org/performances?stdate=${today}&eddate=${today}&cpage=1&rows=5`
         )
         setPerformances(response.data)
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching performances:', error)
+        setLoading(false)
       }
     }
 
@@ -37,6 +40,24 @@ const MainBanner: React.FC = () => {
 
     return () => clearInterval(timer)
   }, [performances.length])
+
+  if (loading) {
+    return (
+      <div className="relative h-[500px] animate-pulse overflow-hidden bg-gray-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-400 to-gray-300"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="mb-2 h-10 w-3/4 rounded bg-gray-500"></div>
+          <div className="mb-1 h-6 w-1/2 rounded bg-gray-500"></div>
+          <div className="h-6 w-1/3 rounded bg-gray-500"></div>
+        </div>
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 transform space-x-2">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="h-3 w-3 rounded-full bg-gray-500" />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative h-[500px] overflow-hidden">

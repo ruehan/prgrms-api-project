@@ -1,13 +1,22 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../types'
+import BestPerformances from './performances'
+import MainBanner from './banner'
+import ArtForestBanner from './artbanner'
+import GenreRecommendations from './recommend'
+import TicketOpen from './ticketopen'
 
 const MainPage: React.FC = () => {
-  const greeting = useSelector((state: RootState) => state.greeting.message)
-
   return (
-    <div className="mt-[80px] w-full px-4 sm:px-6 md:mt-[120px] lg:mt-[162px] lg:px-8">
-      <h1>{greeting + ' 메인 페이지 입니다.'}</h1>
+    <div className="min-h-screen w-full bg-gray-100">
+      <main className="w-full">
+        <MainBanner />
+        <div className="flex w-screen flex-col items-center py-8">
+          <BestPerformances />
+          <TicketOpen />
+          <ArtForestBanner />
+          <GenreRecommendations />
+        </div>
+      </main>
     </div>
   )
 }

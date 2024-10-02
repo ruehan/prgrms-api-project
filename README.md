@@ -1,63 +1,224 @@
-# 프로젝트 개발 진행 상황
+# KOPIS_custom
 
-**[배포 URL](https://prgrms-api-project.vercel.app/)**
+Version: 1.0.1
 
-## 프론트엔드
+> **BASE URL** > **[ruehan-kopis.org](https://ruehan-kopis.org)**
 
-### 1. 메인 페이지
+## Get Performances
 
-- [x] 헤더 및 네비게이션 바
-- [ ] 메인 배너 (슬라이더)
-- [ ] 베스트 공연 섹션
-- [ ] 티켓 오픈 섹션
-- [ ] 장르별 추천 공연 섹션
-- [ ] 푸터
+`GET /performances`
 
-### 2. 공연 상세 페이지
+## 공연목록 조회 API
 
-- [ ] 공연 포스터 및 기본 정보 표시
-- [ ] 공연 상세 정보 섹션
-- [ ] 예매하기 버튼 및 기능
-- [ ] 관련 공연 추천 섹션
-- [ ] 리뷰 섹션
+### Parameters
 
-### 3. 공연 검색 결과 페이지
+- `stdate` (query) (Required): 공연시작일자
+- `eddate` (query) (Required): 공연종료일자
+- `cpage` (query): 현재페이지
+- `rows` (query): 페이지당 목록 수
+- `shprfnm` (query): 공연명
+- `shprfnmfct` (query): 공연시설명
+- `shcate` (query): 장르코드
+- `prfplccd` (query): 공연장코드
+- `signgucode` (query): 지역(시도)코드
+- `signgucodesub` (query): 지역(구군)코드
+- `kidstate` (query): 아동공연여부
+- `prfstate` (query): 공연상태코드
+- `openrun` (query): 오픈런
 
-- [x] 검색 결과 그리드 레이아웃
-- [x] 필터링 기능
-- [ ] 정렬 기능
-- [ ] 페이지네이션
-- [x] 검색어 자동완성 기능
+### Responses
 
-### 4. 공연 Pick 모달
+- **200**: Successful Response
+- **422**: Validation Error
 
-- [x] 추천 공연 그리드 레이아웃
-- [ ] 사용자 맞춤 추천 알고리즘 연동
+---
 
-### 5. 추천 공연 리스트 페이지
+## Get Upcoming Performances
 
-- [x] 장르별 공연 리스트 표시
-- [ ] 무한 스크롤 구현
-- [ ] 장르 필터링 기능
+`GET /upcoming-performances`
 
-### 6. 예매 순위 페이지
+## 공연 예정 목록 조회 API
 
-- [ ] 순위별 공연 리스트 표시
-- [ ] 기간별 필터링 (일간/주간/월간)
-- [ ] 장르별 필터링
+### Responses
 
-### 7. 주변 공연장 페이지
+- **200**: Successful Response
 
-- [x] 지도에 주변 공연장 표시
-- [x] 공연장 정보 표시
-- [x] 공연장에서 진행 중인 공연 표시
+---
 
-## 백엔드
+## Get Performance Detail
 
-**[Repository](https://github.com/ruehan/KOPIS-custom-api)**
+`GET /performance/{mt20id}`
 
-**[API URL](https://ruehan-kopis.org)**
+## 공연상세정보 조회 API
 
-- [x] 데이터베이스 설계
-- [x] API 엔드포인트 설계
-- [x] API 서버 배포
+### Parameters
+
+- `mt20id` (path) (Required):
+
+### Responses
+
+- **200**: Successful Response
+- **422**: Validation Error
+
+---
+
+## Get Auto Fill
+
+`GET /auto-fill`
+
+## 자동완성 API
+
+### Parameters
+
+- `stdate` (query) (Required): 공연시작일자
+- `eddate` (query) (Required): 공연종료일자
+- `cpage` (query): 현재페이지
+- `rows` (query): 페이지당 목록 수
+- `shprfnm` (query) (Required): 공연명
+
+### Responses
+
+- **200**: Successful Response
+- **422**: Validation Error
+
+---
+
+## Update Facilities
+
+`POST /update-facilities`
+
+## 사용금지!!
+
+## 공연시설 DB 업데이트
+
+### Parameters
+
+- `signgucode` (query): 지역(시도)코드
+
+### Responses
+
+- **200**: Successful Response
+- **422**: Validation Error
+
+---
+
+## Get Performance Facilities
+
+`GET /performance-facilities`
+
+공연시설 조회 API
+
+### Parameters
+
+- `signgucode` (query): 지역(시도)코드
+- `signgucodesub` (query): 지역(구군)코드
+- `fcltychartr` (query): 공연시설특성코드
+- `shprfnmfct` (query): 공연시설명
+- `cpage` (query): 현재페이지
+- `rows` (query): 페이지당 목록 수
+
+### Responses
+
+- **200**: Successful Response
+- **422**: Validation Error
+
+---
+
+## Get Popular By Genre
+
+`GET /popular-by-genre`
+
+## 장르별로 공연 1개 반환
+
+### stdate / eddate 수정 필요!
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Get User Picks
+
+`GET /user-picks`
+
+## Token 기반 사용자 공연 Pick 반환
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Save User Picks
+
+`POST /user-picks`
+
+## Token 기반 사용자 공연 Pick 저장
+
+### Request Body
+
+Content type: `application/json`
+
+### Responses
+
+- **200**: Successful Response
+- **422**: Validation Error
+
+---
+
+## Generate Token
+
+`POST /token`
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Get Recommended Shows
+
+`GET /recommended-shows`
+
+## 공연 Pick에 따른 추천 공연 리스트
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Drop Upcoming Performance Table
+
+`DELETE /upcoming-performances/drop`
+
+Delete the entire upcoming_performances table.
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Root
+
+`GET /`
+
+### Responses
+
+- **200**: Successful Response
+
+---
+
+## Get Markdown Docs
+
+`GET /docs/markdown`
+
+API 문서를 간결한 Markdown 형식으로 반환
+
+### Responses
+
+- **200**: Successful Response
+
+---

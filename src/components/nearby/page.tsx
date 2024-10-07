@@ -107,6 +107,9 @@ const NearbyPerformanceFacilities: React.FC = () => {
         (error) => {
           console.error('Error getting user location:', error)
           checkPermission()
+        },
+        {
+          enableHighAccuracy: true,
         }
       )
     } else {

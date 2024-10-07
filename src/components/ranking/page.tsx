@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
+import BoxOfficeSkeleton from './skeleton'
 
 interface BoxOfficeItem {
   mt20id: string
@@ -79,7 +80,8 @@ const BoxOffice: React.FC = () => {
     setFilterOptions({ ...filterOptions, [e.target.name]: e.target.value })
   }
 
-  if (isLoading) return <div className="py-10 text-center">로딩 중...</div>
+  if (isLoading) return <BoxOfficeSkeleton />
+
   if (error)
     return <div className="py-10 text-center text-red-600">데이터를 불러오는 데 실패했습니다.</div>
 

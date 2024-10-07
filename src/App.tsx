@@ -11,6 +11,7 @@ import NearbyPerformanceFacilities from './components/nearby/page'
 import RecommendedShows from './components/recommend/page'
 import { AuthProvider } from './components/recommend/AuthContext'
 import PerformanceDetailPage from './components/info/page'
+import BoxOffice from './components/ranking/page'
 
 const App: React.FC = () => {
   const queryClient = new QueryClient()
@@ -27,6 +28,7 @@ const App: React.FC = () => {
               <Route path="/nearby" element={<NearbyPerformanceFacilities />}></Route>
               <Route path="/recommend" element={<RecommendedShows />}></Route>
               <Route path="/performance/:mt20id" element={<PerformanceDetailPage />}></Route>
+              <Route path="/ranking" element={<BoxOffice />}></Route>
             </Routes>
           </Router>
         </Provider>

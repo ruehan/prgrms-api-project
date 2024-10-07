@@ -110,6 +110,7 @@ const NearbyPerformanceFacilities: React.FC = () => {
         },
         {
           enableHighAccuracy: true,
+          maximumAge: 0,
         }
       )
     } else {

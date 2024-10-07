@@ -1,8 +1,7 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
-import { useInView } from 'react-intersection-observer'
 
 interface PerformanceDetail {
   styurls: string
@@ -45,19 +44,7 @@ const PerformanceDetailPage: React.FC = () => {
     isLoading,
     error,
   } = useQuery(['performanceDetail', mt20id], () => fetchPerformanceDetail(mt20id!))
-  // const [ref, inView] = useInView()
   const imageSectionRef = useRef<HTMLDivElement>(null)
-  const [ref, inView] = useInView({})
-
-  useEffect(() => {
-    if (inView) {
-      scrollToImageSection()
-    }
-  }, [inView])
-
-  const scrollToImageSection = () => {
-    imageSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   if (isLoading) return <div className="flex h-screen items-center justify-center">로딩 중...</div>
   if (error)
@@ -73,83 +60,107 @@ const PerformanceDetailPage: React.FC = () => {
 
   const priceList = performance.pcseguidance.split(/원,|원/).map((price) => price.trim())
   const imageUrls = performance.styurls.split(',').map((url) => url.trim())
-  const relateInfo: RelateInfo[] = JSON.parse(performance.relates)
+  const relateInfo: RelateInfo[] = Array.isArray(JSON.parse(performance.relates))
+    ? JSON.parse(performance.relates)
+    : [JSON.parse(performance.relates)]
+
+  priceList.pop()
 
   return (
-    <div className="min-h-screen">
-      <section className="flex min-h-screen flex-col bg-gray-100 p-4 pt-[80px]">
-        <div className="container mx-auto max-w-[1440px]">
-          <h1 className="mb-6 text-3xl font-bold">{performance.prfnm}</h1>
-          <div className="mb-4 text-sm">
-            {performance.prfpdfrom} ~ {performance.prfpdto}
-          </div>
-          <div className="flex flex-col gap-8 md:flex-row">
-            <div className="flex flex-col md:w-1/3">
-              <img
-                src={performance.poster}
-                alt={performance.prfnm}
-                className="h-auto w-full rounded-lg object-cover shadow-lg"
-              />
-            </div>
-            <div className="flex flex-col md:w-2/3">
-              <div className="flex flex-grow flex-col justify-between rounded-lg bg-white p-6 shadow-md">
-                <dl className="grid grid-cols-1 gap-y-4">
-                  <div className="flex">
-                    <dt className="w-1/4 font-medium">등급</dt>
-                    <dd>{performance.prfage}</dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-1/4 font-medium">관람시간</dt>
-                    <dd>{performance.prfruntime}</dd>
-                  </div>
-                  {performance.prfcast && (
-                    <div className="flex">
-                      <dt className="w-1/4 font-medium">출연</dt>
-                      <dd>{performance.prfcast}</dd>
-                    </div>
-                  )}
-                  {performance.prfcrew && (
-                    <div className="flex">
-                      <dt className="w-1/4 font-medium">제작진</dt>
-                      <dd>{performance.prfcrew}</dd>
-                    </div>
-                  )}
-                  <div className="flex">
-                    <dt className="w-1/4 font-medium">가격</dt>
-                    <dd>
-                      {priceList.map((price, index) => (
-                        <div key={index}>{price}</div>
-                      ))}
-                    </dd>
-                  </div>
-                  <div className="flex">
-                    <dt className="w-1/4 font-medium">공연시간 안내</dt>
-                    <dd>{performance.dtguidance}</dd>
-                  </div>
-                </dl>
+    <div className="border-b-gray">
+      <section className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="md:flex">
+              <div className="md:w-1/3 md:flex-shrink-0">
+                <img
+                  className="h-full w-full object-cover md:h-full md:w-full"
+                  src={performance.poster}
+                  alt={performance.prfnm}
+                />
               </div>
-              {/* 여기 부분 어떻게 해야할까? */}
-              {relateInfo.length > 0 && (
-                <div className="mt-4">
-                  {relateInfo.map((relate, index) => (
-                    <a
-                      key={index}
-                      href={relate.relateurl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mb-2 block w-full rounded-lg bg-purple-600 py-3 text-center font-bold text-white"
-                    >
-                      {relate.relatenm}에서 예매하기
-                    </a>
-                  ))}
+              <div className="p-8 md:w-2/3">
+                <div className="text-sm font-semibold uppercase tracking-wide text-indigo-500">
+                  {performance.genrenm}
                 </div>
-              )}
+                <h1 className="mt-2 text-3xl font-extrabold leading-8 tracking-tight text-gray-900 sm:text-4xl">
+                  {performance.prfnm}
+                </h1>
+                <p className="mt-2 text-xl text-gray-500">
+                  {performance.prfpdfrom} ~ {performance.prfpdto}
+                </p>
+                <p className="mt-4 text-lg text-gray-700">{performance.fcltynm}</p>
+
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div className="sm:col-span-1">
+                      <dt className="text-sm font-medium text-gray-500">등급</dt>
+                      <dd className="mt-1 text-sm text-gray-900">{performance.prfage}</dd>
+                    </div>
+                    <div className="sm:col-span-1">
+                      <dt className="text-sm font-medium text-gray-500">관람시간</dt>
+                      <dd className="mt-1 text-sm text-gray-900">{performance.prfruntime}</dd>
+                    </div>
+                    {performance.prfcast && (
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-500">출연</dt>
+                        <dd className="mt-1 text-sm text-gray-900">{performance.prfcast}</dd>
+                      </div>
+                    )}
+                    {performance.prfcrew && (
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-500">제작진</dt>
+                        <dd className="mt-1 text-sm text-gray-900">{performance.prfcrew}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">가격</h3>
+                  <dl className="mt-2 border-t border-gray-200">
+                    {priceList.map((price, index) => (
+                      <div
+                        key={index}
+                        className={`flex justify-between py-3 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
+                      >
+                        <dt className="text-sm font-medium text-gray-500">{price.split(' ')[0]}</dt>
+                        <dd className="text-sm text-gray-900">{price.split(' ')[1]}원</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">공연시간 안내</h3>
+                  <p className="mt-2 text-sm text-gray-700">{performance.dtguidance}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <div ref={ref} style={{ height: '1px' }} />
+      {relateInfo.length > 0 && (
+        <div
+          className="fixed bottom-0 left-0 right-0 flex justify-center bg-white p-4 shadow-lg"
+          style={{ zIndex: 10 }} // z-index로 고정된 요소가 다른 요소 위에 오도록 설정
+        >
+          <div className="flex gap-4">
+            {relateInfo.map((relate, index) => (
+              <a
+                key={index}
+                href={relate.relateurl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-purple-600 px-6 py-3 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                {relate.relatenm}에서 예매하기
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {imageUrls.length > 0 && (
         <section ref={imageSectionRef} className="bg-white py-16">

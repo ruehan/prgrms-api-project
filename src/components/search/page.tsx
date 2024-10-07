@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { format } from 'date-fns'
@@ -28,21 +28,15 @@ interface FilterState {
 
 const fetchPerformances = async (prfnm: string) => {
   if (!prfnm) return []
-  const { data } = await axios.get<Performance[]>(
-    'https://ruehan-kopis.org/performances',
-    {
-      params: {
-        stdate: format(new Date(), 'yyyyMMdd'),
-        eddate: format(
-          new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-          'yyyyMMdd'
-        ),
-        shprfnm: prfnm,
-        cpage: 1,
-        rows: 100,
-      },
-    }
-  )
+  const { data } = await axios.get<Performance[]>('https://ruehan-kopis.org/performances', {
+    params: {
+      stdate: format(new Date(), 'yyyyMMdd'),
+      eddate: format(new Date(new Date().setFullYear(new Date().getFullYear() + 1)), 'yyyyMMdd'),
+      shprfnm: prfnm,
+      cpage: 1,
+      rows: 100,
+    },
+  })
   return data
 }
 
@@ -79,8 +73,7 @@ const SearchPage: React.FC = () => {
     [performances]
   )
   const regions = useMemo(
-    () =>
-      Array.from(new Set(performances?.map((p) => p.area.split(' ')[0]) || [])),
+    () => Array.from(new Set(performances?.map((p) => p.area.split(' ')[0]) || [])),
     [performances]
   )
 
@@ -88,11 +81,9 @@ const SearchPage: React.FC = () => {
     if (!performances) return []
     return performances.filter((performance) => {
       const genreMatch =
-        appliedFilters.genres.length === 0 ||
-        appliedFilters.genres.includes(performance.genrenm)
+        appliedFilters.genres.length === 0 || appliedFilters.genres.includes(performance.genrenm)
       const statusMatch =
-        appliedFilters.status === '전체' ||
-        performance.prfstate === appliedFilters.status
+        appliedFilters.status === '전체' || performance.prfstate === appliedFilters.status
       const regionMatch =
         appliedFilters.regions.length === 0 ||
         appliedFilters.regions.includes(performance.area.split(' ')[0])
@@ -108,11 +99,9 @@ const SearchPage: React.FC = () => {
     if (!performances) return []
     return performances.filter((performance) => {
       const genreMatch =
-        selectedFilters.genres.length === 0 ||
-        selectedFilters.genres.includes(performance.genrenm)
+        selectedFilters.genres.length === 0 || selectedFilters.genres.includes(performance.genrenm)
       const statusMatch =
-        selectedFilters.status === '전체' ||
-        performance.prfstate === selectedFilters.status
+        selectedFilters.status === '전체' || performance.prfstate === selectedFilters.status
       const regionMatch =
         selectedFilters.regions.length === 0 ||
         selectedFilters.regions.includes(performance.area.split(' ')[0])
@@ -130,18 +119,12 @@ const SearchPage: React.FC = () => {
     params.set('genres', selectedFilters.genres.join(','))
     params.set('status', selectedFilters.status)
     params.set('regions', selectedFilters.regions.join(','))
-    params.set(
-      'date',
-      selectedFilters.date ? format(selectedFilters.date, 'yyyy-MM-dd') : ''
-    )
+    params.set('date', selectedFilters.date ? format(selectedFilters.date, 'yyyy-MM-dd') : '')
     navigate(`${location.pathname}?${params.toString()}`)
   }
 
   if (isLoading) return <div className="mt-10 text-center">로딩 중...</div>
-  if (error)
-    return (
-      <div className="mt-10 text-center text-red-500">에러가 발생했습니다.</div>
-    )
+  if (error) return <div className="mt-10 text-center text-red-500">에러가 발생했습니다.</div>
 
   return (
     <div className="mt-[80px] w-full px-4 sm:px-6 lg:px-8">
@@ -186,9 +169,7 @@ const SearchPage: React.FC = () => {
                 {['전체', '공연중', '공연예정', '공연종료'].map((status) => (
                   <button
                     key={status}
-                    onClick={() =>
-                      setSelectedFilters((prev) => ({ ...prev, status }))
-                    }
+                    onClick={() => setSelectedFilters((prev) => ({ ...prev, status }))}
                     className={`rounded-full px-3 py-1 text-sm ${
                       selectedFilters.status === status
                         ? 'bg-purple-500 text-white'
@@ -251,9 +232,10 @@ const SearchPage: React.FC = () => {
           <div className="w-full">
             <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {filteredPerformances.map((performance) => (
-                <div
+                <Link
                   key={performance.mt20id}
-                  className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
+                  to={`/performance/${performance.mt20id}`}
+                  className="flex flex-col overflow-hidden rounded-lg bg-white shadow-md transition-transform hover:scale-105"
                 >
                   <div className="h-[300px] overflow-hidden">
                     <img
@@ -266,15 +248,11 @@ const SearchPage: React.FC = () => {
                     <h2 className="mb-2 line-clamp-2 text-sm font-bold sm:text-base">
                       {performance.prfnm}
                     </h2>
-                    <p className="mb-1 line-clamp-1 text-sm">
-                      {performance.fcltynm}
-                    </p>
+                    <p className="mb-1 line-clamp-1 text-sm">{performance.fcltynm}</p>
                     <p className="mt-auto text-xs">{`${format(new Date(performance.prfpdfrom), 'yyyy.MM.dd')} - ${format(new Date(performance.prfpdto), 'yyyy.MM.dd')}`}</p>
-                    <p className="mt-1 text-xs">
-                      {performance.prfstate || '상태 미정'}
-                    </p>
+                    <p className="mt-1 text-xs">{performance.prfstate || '상태 미정'}</p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

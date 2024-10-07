@@ -70,7 +70,7 @@ const GenreRecommendations: React.FC = () => {
   )
 
   return (
-    <section className="my-12 w-full max-w-[1440px] px-4">
+    <section className="my-12 mt-[80px] w-full max-w-[1440px] px-4">
       <h2 className="mb-4 text-center text-2xl font-bold md:text-3xl lg:text-[40px]">
         장르별 추천 공연
       </h2>
